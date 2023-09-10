@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// crirar uma migratition: yarn prisma migrate dev
+model User{
+  ID String @id @default(uuid())
+  NOME String
+  EMAIL String
+  SENHA String
+  CREATED_AT DateTime? @default(now())
+  UPDATED_AT DateTime? @default(now())
+  
+  @@map("ODD_USUARIOS")
+}
+
+model CATEGORIA{
+  ID String @id @default(uuid()) // alto incremento
+  NOME String
+  CREATED_AT DateTime? @default(now())
+  UPDATED_AT DateTime? @default(now())
+
+  @@map("ODD_CATEGORIAS")
+  // refernciar table
+  ODD_PRODUTOS PRODUTO[] 
+}
+
+model PRODUTO{
+  ID String @id @default(uuid())
+  NOME String
+  PRECO String
+  DESCRICAO String
+  BANNER String
+  CREATED_AT DateTime? @default(now())
+  UPDATED_AT DateTime? @default(now())
+  // refernciar table
+  CATEGORIA CATEGORIA @relation(fields: [CATEGORIA_ID], references: [ID]) // refernciar table
+
+  @@map("ODD_PRODUTOS")
+  CATEGORIA_ID String // refernciar table
+  ODD_ITEM ITEM[]
+}
+
+model OS{
+  ID String @id @default(uuid())
+  TABLE Int
+  STATUS Boolean @default(false)
+  RASCUNHO Boolean @default(true)
+  NOME String?
+  CREATED_AT DateTime? @default(now())
+  UPDATED_AT DateTime? @default(now())
+
+  @@map("ODD_OS")
+  
+  ODD_ITEM ITEM[]
+}
+
+model ITEM{
+  ID String @id @default(uuid())
+  QTD Int
+  CREATED_AT DateTime? @default(now())
+  UPDATED_AT DateTime? @default(now())
+
+  OS OS @relation(fields: [OS_ID], references: [ID])
+  PRODUTO PRODUTO @relation(fields: [PRODUTO_ID], references: [ID])
+
+  @@map("ODD_ITEM")
+  OS_ID String
+  PRODUTO_ID String
+}
